@@ -1,10 +1,7 @@
 from django.shortcuts import render
 from .forms import LoginPairForm 
-from django.shortcuts import redirect
 import subprocess
-from subprocess import CalledProcessError
 from .models import LoginPair
-from django.core.exceptions import ObjectDoesNotExist 
 import shlex
 import StringIO 
 
@@ -25,10 +22,10 @@ def home(request):
             
             ##############################
             # imapsync and its parameters   
-            oldHost = "202.177.26.104"
+            oldHost = "127.0.0.1"
             oldUserName = thisLoginUser.email
-            oldPw = thisLoginUser.pw
-            newHost = "127.0.0.1"
+            oldPw = thisLoginUser.newPw
+            newHost = "amonicscom.securemail.hk"
             newUserName = thisLoginUser.email   
             newPw = thisLoginUser.newPw
             cmd = "imapsync --syncinternaldates --sep1 / --prefix1 / --nofoldersizes --skipsize" \
@@ -81,11 +78,11 @@ def home(request):
     # fresh load this page, show the form to let the user to input his/her login info. 
     else:
         form = LoginPairForm()
-    	return render(request, 'getlogin/main.html', {
+        return render(request, 'getlogin/main.html', {
                                                       'form': form,
                                                       'statusMsg': "",
                                                       })
 
-def list(request):
+def listUsers(request):
     lp = LoginPair.objects.filter(pw="null")
     return render(request, 'getlogin/list.html', {'unDidloginPairs':lp})
