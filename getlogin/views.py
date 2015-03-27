@@ -14,36 +14,17 @@ def home(request):
     # user already login and save its login info.  
     if request.method == "POST":
         form = LoginPairForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-             
-            ##############################
-            # check the existing account from old email server 
-            try:
-                thisLoginUser = LoginPair.objects.get(email=post.email)
-                
-            ##############################
-            # no this user fr. old server, let user know you are invalid
-            #    may be someone want to hack this system 
-            except ObjectDoesNotExist as odne:
-                return render(request, 'getlogin/main.html', {
-                                                              'form': form,
-                                                              'statusMsg': "your login email or password wrong, please try again !!!",
-                                                              })
-                
-            ##############################
-            # yes fr. old server, prepare the migration and let user know i will send you back a email when completed
-    
-            ##############################
-            # keep its login info.
-            thisLoginUser.pw = post.pw 
-            thisLoginUser.save()
+        
+        ##############################
+        # get all accounts one by one to sync
+        testCnt = 0  
+        for thisLoginUser in LoginPair.objects.all():
             
             ##############################
-            # do the migration or send email to yan for manually migration
-              
+            # get this account info. 
+            
             ##############################
-            # do a imapsync dry connection and chk how many msg to sync 
+            # imapsync and its parameters   
             oldHost = "202.177.26.104"
             oldUserName = thisLoginUser.email
             oldPw = thisLoginUser.pw
@@ -51,55 +32,50 @@ def home(request):
             newUserName = thisLoginUser.email   
             newPw = thisLoginUser.newPw
             cmd = "imapsync --syncinternaldates --sep1 / --prefix1 / --nofoldersizes --skipsize" \
-		+ " --useuid --usecache --subscribe_all" \
+                + " --useuid --usecache --subscribe_all" \
                 + " --host1 " + oldHost +" --authmech1 LOGIN --user1 " + oldUserName + " --password1 " + oldPw \
                 + " --host2 " + newHost + " --authmech2 LOGIN --user2 " + newUserName + " --password2 " + newPw 
             argu = shlex.split(cmd) 
         
-            proc = subprocess.Popen(argu, stdout=subprocess.PIPE, cwd="/opt/MigrateEmailServer/")
-        
-            #while proc.poll() == None:
-                # We can do other things here while we wait
-                #time.sleep(1)
-                #print "."
+            ##############################
+            # monitor tx error or success
+            oneAccSyncErrFlag = True
+            while (oneAccSyncErrFlag):
+             
+                ##############################
+                # do a imapsync dry connection and chk how many msg to sync 
+                proc = subprocess.Popen(argu, stdout=subprocess.PIPE, cwd="/opt/MigrateEmailServer/")
             
-            stdoutdata = proc.communicate()[0]
-            
-            ##############################
-            # find err.  
-            loginAuthFailure = "Failure: error login on"
-            if loginAuthFailure in stdoutdata:
-                return render(request, 'getlogin/main.html', {
-                                                              'form': form,
-                                                              'statusMsg': "your login email or password wrong, please try again.",
-                                                              })
+                stdoutdata = proc.communicate()[0]
                 
-            ##############################
-            # find how many email records
-            msgTxCnt = "Messages transferred"
-            msgDryMode = "dry mode"
-            buf = StringIO.StringIO(stdoutdata)
-            for oneLine in buf.readlines():
-                if msgTxCnt in oneLine:
-                    txCntArr = oneLine.split( );
-                    if msgDryMode in oneLine:
-                        txCnt = txCntArr[6]
-                    else:
-                        txCnt = txCntArr[3]
-                    return render(request, 'getlogin/progress.html', {
-                                                                      'txCnt' : txCnt,
-                                                                      })
-                
-            return render(request, 'getlogin/err.html', {'errMsg':"Cannot Find how many Messages transferred"})
-            #return render(request, 'getlogin/test.html', {'testStr':p.returncode})
-            #return redirect('getlogin.views.migrating', proc)
-                
-            ##############################
-            # tell the imapsync dry result to user, let user know i will send you back a email when completed   
-        
-            #return redirect('getlogin.views.migrating', pk=thisLoginUser.pk)
-	else: 
-    	    return render(request, 'getlogin/err.html', {'errMsg':"Form Data Invalid"})
+                ##############################
+                # find err.  
+                loginAuthFailure = "Failure: error login on"
+                if loginAuthFailure in stdoutdata:
+                    return render(request, 'getlogin/main.html', {
+                                                                  'form': form,
+                                                                  'statusMsg': "your login email or password wrong, please try again.",
+                                                                  })
+                    
+                ##############################
+                # find sucessful tx or not 
+                detectStr = "Detected"
+                buf = StringIO.StringIO(stdoutdata)
+                for oneLine in buf.readlines():
+                    if detectStr in oneLine:
+                        txCntArr = oneLine.split( );
+                        if txCntArr[2] == "errors":
+                            if txCntArr[1] == '0' :
+                                oneAccSyncErrFlag = False
+                                
+            #testCnt += 1
+            #if testCnt >=3:
+            #    break
+                            
+        txCnt = "all done"
+        return render(request, 'getlogin/progress.html', {
+                                                          'txCnt' : txCnt,
+                                                          })
 
     ##############################
     # fresh load this page, show the form to let the user to input his/her login info. 
