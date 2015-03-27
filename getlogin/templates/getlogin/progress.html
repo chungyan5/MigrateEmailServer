@@ -1,0 +1,22 @@
+{% extends 'getlogin/base.html' %}
+
+{% block content %}
+		<ol>
+			<li>
+				<span style="font-size:22px;">You have &quot;<span style="font-size:36px;"><span style="color: rgb(255, 0, 51);">{{ txCnt }}</span></span>&quot; email(s) to be migrated from Old to New email Hosts.</span></li>
+			<li>
+				<span style="font-size:22px;">It may <span style="font-size:28px;"><strong><u>take a long time</u></strong></span> if you have too many emails</span></li>
+			<li>
+				<span style="font-size:22px;">Once completed, our system <span style="font-size:28px;"><u><strong>will email</strong></u></span> a complete message with <span style="font-size:28px;"><strong><span style="background-color: rgb(255, 255, 0);">a new hosting login information</span></strong></span> for verification at new email system.</span></li>
+		</ol>
+		<p>
+			<span style="font-size:22px;">&nbsp; </span></p>
+		<ol>
+			<li>
+				<span style="font-size:22px;">你有&ldquo;<span style="font-size:22px;"><span style="font-size:36px;"><span style="color: rgb(255, 0, 51);">{{ txCnt }}</span></span></span>&rdquo; 個電子郵件 從舊電子郵箱遷移到新電子郵箱。</span></li>
+			<li>
+				<span style="font-size:22px;">如果你有許多電子郵件，這可能需要<strong><u><span style="font-size:28px;">一段長時間</span></u></strong>在我們的系統中排隊。</span></li>
+			<li>
+				<span style="font-size:22px;">一旦完成，我們的系統將通過<span style="font-size:28px;"><strong><u>電子郵件發送消息給您</u></strong></span>，包括<span style="font-size:28px;"><strong><span style="background-color: rgb(255, 255, 0);">新的登錄信息</span></strong></span>，您可以對新電子郵箱進行驗證。</span></li>
+		</ol>
+{% endblock content %}

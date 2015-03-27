@@ -1,0 +1,32 @@
+{% load static %}
+<html>
+    <head>
+        <title>Amonics Email Hosting Migration on Mar 2015</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="{% get_static_prefix %}css/getlogin.css">
+	<style>
+		ul.a {list-style-type: square;}
+	</style>
+    </head>
+    <body>
+	<div id="wrapper">
+	<div class="page-header">
+		<p>
+			<img src="{% get_static_prefix %}amonics_logo_320x240_16bit.bmp" style="width:200px;height:150px">
+			Amonics Email Host Migration, Mar 2015
+		</p>
+	</div>
+        <div class="content container">
+                                {% block content %}
+                                {% endblock %}
+        </div>
+	<div id="footer">
+		<p>
+		  If you encounter any problem, please contact to Yan by its@amonics.com / +852 9780 0177
+		</p>
+       	</div>
+       	</div>
+    </body>
+</html>
